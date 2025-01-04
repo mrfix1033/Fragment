@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.CursorFactory
 import android.database.sqlite.SQLiteOpenHelper
-import androidx.core.content.contentValuesOf
 
 class DatabaseManager(context: Context, cursorFactory: CursorFactory?) :
     SQLiteOpenHelper(context, TABLE_NAME, cursorFactory, DATABASE_VERSION) {
@@ -72,6 +71,12 @@ class DatabaseManager(context: Context, cursorFactory: CursorFactory?) :
     fun select(func: (Cursor) -> Any) {
         readableDatabase.use {
             it.rawQuery("SELECT * FROM $TABLE_NAME", null, null).use(func)
+        }
+    }
+
+    fun delete(id: Int) {
+        writableDatabase.use {
+            it.delete(TABLE_NAME, "id=$id", null)
         }
     }
 }

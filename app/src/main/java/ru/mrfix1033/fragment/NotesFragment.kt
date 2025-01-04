@@ -1,17 +1,13 @@
 package ru.mrfix1033.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -21,6 +17,7 @@ import java.util.Locale
 class NotesFragment : Fragment() {
     private lateinit var databaseManager: DatabaseManager
     private val notes = mutableListOf<Note>()
+    private lateinit var onFragmentDataListener: OnFragmentDataListener
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var recyclerViewAdapter: RecyclerView.Adapter<NoteHolder>
@@ -33,13 +30,9 @@ class NotesFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notes, container, false)
-    }
+        val view = inflater.inflate(R.layout.fragment_notes, container, false)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+        onFragmentDataListener = requireActivity() as OnFragmentDataListener
         recyclerView = view.findViewById(R.id.recyclerView)
         editTextNote = view.findViewById(R.id.editTextNote)
 
@@ -97,6 +90,10 @@ class NotesFragment : Fragment() {
                         }
                         databaseManager.update(note)
                     }
+
+                    main.setOnClickListener {
+                        onFragmentDataListener.onData(position, note.text)
+                    }
                 }
             }
         }
@@ -105,6 +102,28 @@ class NotesFragment : Fragment() {
 
         databaseManager = DatabaseManager(view.context, null)
         loadNotes()
+
+        return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (arguments == null)  // because onResume calls after fragment created
+            return
+        val arguments = requireArguments()
+        val position = arguments.getInt("position")
+
+        val note = notes[position]
+        val text = arguments.getString("text")!!
+        if (text.isEmpty()) {
+            notes.removeAt(position)
+            recyclerViewAdapter.notifyItemRemoved(position)
+            databaseManager.delete(note.id)
+            return
+        }
+        note.text = text
+        recyclerViewAdapter.notifyItemChanged(position)
+        databaseManager.update(note)
     }
 
     private fun loadNotes() {
@@ -120,6 +139,6 @@ class NotesFragment : Fragment() {
                 )
             }
         }
-        recyclerViewAdapter.notifyDataSetChanged()
+        recyclerViewAdapter.notifyItemRangeChanged(0, notes.size)
     }
 }

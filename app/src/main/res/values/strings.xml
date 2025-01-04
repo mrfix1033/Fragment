@@ -7,4 +7,6 @@
     <string name="load">Загрузить</string>
     <string name="long_text">Long Text 1 2 3 4 5 6 7 8 9 10 Long Text 1 2 3 4 5 6 7 8 9 10 Long Text 1 2 3 4 5 6 7 8 9 10 Long Text 1 2 3 4 5 6 7 8 9 10 Long Text 1 2 3 4 5 6 7 8 9 10</string>
     <string name="my_notes">Мои заметки</string>
+    <string name="delete_note">Удалить заметку</string>
+    <string name="save">Сохранить</string>
 </resources>
